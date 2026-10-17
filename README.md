@@ -30,6 +30,9 @@ To list a new one here, copy the `<article class="talk-card">` block in
 `index.html`, then update the conference pill, location/date, title, blurb, and
 the "Open the slides" URL. Cards stack in document order.
 
+Every off-site link carries `target="_blank" rel="noopener"` so it opens in a new
+tab and leaves this page where the visitor left it — keep that on new links too.
+
 For the hero image, grab the deck's first preview slide
 (`_preview/s-01.jpg` in the presentations repo), drop it in `images/`, and point
 `.hero-visual` at it.
