@@ -10,7 +10,7 @@ index.html   the whole page
 css/home.css all styling
 cv/          the CV the header's "CV" button downloads
 fonts/       self-hosted Source Sans 3 (variable, woff2)
-images/      hero / talk thumbnails
+images/      header portrait + talk thumbnails
 .nojekyll    serve every file verbatim, including dirs starting with "_"
 ```
 
