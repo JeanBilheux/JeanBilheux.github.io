@@ -8,10 +8,17 @@ GitHub Pages redeploys within a minute.
 ```
 index.html   the whole page
 css/home.css all styling
+cv/          the CV the header's "CV" button downloads
 fonts/       self-hosted Source Sans 3 (variable, woff2)
 images/      hero / talk thumbnails
 .nojekyll    serve every file verbatim, including dirs starting with "_"
 ```
+
+## Updating the CV
+
+Overwrite `cv/JeanBilheuxCV.pdf` and push. Keep the filename — it is what the
+header and footer link to, and the `download` attribute means that name is also
+what visitors get on disk.
 
 ## Adding a presentation
 
