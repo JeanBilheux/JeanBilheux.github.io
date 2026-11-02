@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neutron Grating Interferometry</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="An illustrated, interactive guide to Talbot, Talbot-Lau and far-field neutron grating interferometers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (68ch) for prose; figures and interactive benches widen to 960px; a sticky section index on top. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --fg:#1a2130; --muted:#5a6376; --line:#d5dae3; --line-soft:#e7eaf0;
+  --beam:#0092a8; --beam-soft:rgba(0,146,168,.14); --sample:#d2731c; --scatter:#8a3f9e;
+  --canvas-bg:#0b1216;
+  --font-display:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-body:"Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10151d; --surface:#171e29; --fg:#e6eaf0; --muted:#9aa3b2; --line:#2b3442; --line-soft:#1f2735;
+    --beam:#1d9aab; --beam-soft:rgba(29,154,171,.18); --sample:#cf7a22; --scatter:#b367c7;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151d; --surface:#171e29; --fg:#e6eaf0; --muted:#9aa3b2; --line:#2b3442; --line-soft:#1f2735;
+  --beam:#1d9aab; --beam-soft:rgba(29,154,171,.18); --sample:#cf7a22; --scatter:#b367c7;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:1.0625rem;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 4rem}
+img,svg,canvas{max-width:100%}
+canvas{display:block;width:100%;height:auto}
+h1,h2,h3{font-family:var(--font-display);font-weight:500;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.3rem,5vw,3.8rem);letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,3vw,2.3rem)}
+h3{font-size:1.35rem;margin-top:1.8rem;margin-bottom:.5rem}
+p{margin:0 0 1rem}
+a{color:var(--beam)}
+:focus-visible{outline:2px solid var(--beam);outline-offset:2px}
+.wrap{max-width:960px;margin:0 auto}
+.prose{max-width:68ch}
+.prose ul{padding-left:1.2rem}
+.prose li{margin-bottom:.4rem}
+.eyebrow{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hero{padding-block:3.5rem 2.2rem;border-bottom:1px solid var(--line)}
+.hero .lede{font-family:var(--font-display);font-size:1.4rem;line-height:1.4;max-width:42ch;margin-top:1rem}
+.hero .lede em{font-style:italic;color:var(--beam)}
+.signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:2.2rem}
+.signals .sig{border-top:2px solid var(--line);padding-top:.6rem}
+.signals .sig svg{width:100%;height:auto;display:block}
+.signals .sig b{display:block;font-family:var(--font-display);font-size:1.15rem;font-weight:500;margin:.3rem 0 .15rem}
+.signals .sig span{font-size:.9rem;color:var(--muted)}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.toc ul{display:flex;gap:.2rem 1.3rem;flex-wrap:wrap;list-style:none;padding:0;margin:0;padding-block:.55rem;font-family:var(--font-mono);font-size:.8rem}
+nav.toc a{color:var(--muted);text-decoration:none}
+nav.toc a:hover{color:var(--fg)}
+section{padding-block:3rem 1.5rem;border-bottom:1px solid var(--line-soft)}
+.section-head{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.2rem}
+figure{margin:1.6rem 0}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:.6rem;max-width:68ch;line-height:1.5}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.6rem}
+.diagram svg{display:block;width:100%;height:auto;min-width:620px}
+.diagram text{font-family:var(--font-body);font-size:12px;fill:currentColor}
+.diagram .mono{font-family:var(--font-mono);font-size:11.5px}
+.diagram .muted{fill:var(--muted)}
+.f-beam{fill:var(--beam);opacity:.16}
+.f-beam2{fill:var(--beam);opacity:.42}
+.f-sample{fill:var(--sample);opacity:.35;stroke:var(--sample);stroke-width:1.5}
+.f-det{fill:var(--line)}
+.ray{stroke:var(--beam);stroke-width:1.5;fill:none}
+.ray-dev{stroke:var(--sample);stroke-width:2;stroke-dasharray:6 4;fill:none}
+.dim{stroke:currentColor;stroke-width:1}
+.bench{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1rem;margin:1.4rem 0}
+.bench .carpet-wrap{position:relative;background:var(--canvas-bg);border-radius:4px;overflow:hidden}
+.controls{display:flex;flex-wrap:wrap;gap:.9rem 1.6rem;align-items:flex-end;margin:.2rem 0 .9rem}
+.ctl{display:flex;flex-direction:column;gap:.3rem;font-size:.84rem;color:var(--muted);min-width:0}
+.ctl input[type=range]{width:190px;max-width:100%;accent-color:var(--beam);margin:0}
+.ctl .val{font-family:var(--font-mono);color:var(--fg);font-size:.9rem}
+.ctl input[type=number],.ctl select{font:inherit;font-family:var(--font-mono);font-size:.9rem;padding:.3rem .45rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);width:7.5rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--bg)}
+.seg label{padding:.38rem .85rem;cursor:pointer;font-size:.9rem;color:var(--muted);position:relative}
+.seg label:has(input:checked){background:var(--fg);color:var(--bg)}
+.seg input{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.btn{font:inherit;font-size:.9rem;padding:.42rem .95rem;border:1px solid var(--fg);background:var(--surface);color:var(--fg);border-radius:4px;cursor:pointer}
+.btn:hover{background:var(--line-soft)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem 1.2rem;font-size:.86rem;color:var(--muted);margin-top:.6rem}
+.readout div{border-top:2px solid var(--line);padding-top:.4rem;min-width:0}
+.readout b{display:block;font-family:var(--font-mono);font-size:1.12rem;font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}
+.readout b.smp{color:var(--sample)}
+.readout b.beam{color:var(--beam)}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.grid{stroke:var(--line-soft)}
+.axis{stroke:var(--line)}
+.tick{font-family:var(--font-mono);font-size:11px;fill:var(--muted)}
+.lbl{font-family:var(--font-body);font-size:12px;fill:var(--muted)}
+.s-ref{stroke:var(--beam);fill:none;stroke-width:2;stroke-linejoin:round}
+.s-smp{stroke:var(--sample);fill:none;stroke-width:2;stroke-linejoin:round}
+.s-sct{stroke:var(--scatter);fill:none;stroke-width:2;stroke-linejoin:round}
+.s-sum{stroke:currentColor;fill:none;stroke-width:2}
+.p-ref circle{fill:var(--beam);stroke:var(--surface);stroke-width:2}
+.p-smp circle{fill:var(--sample);stroke:var(--surface);stroke-width:2}
+.p-step circle{fill:var(--muted);stroke:var(--surface);stroke-width:2}
+.cursor line{stroke:var(--fg);stroke-dasharray:3 3;opacity:.6}
+.cursor rect{fill:var(--surface);stroke:var(--line)}
+.cursor text{font-family:var(--font-mono);font-size:11px;fill:var(--fg)}
+.legend{display:flex;gap:1.3rem;font-size:.85rem;color:var(--muted);flex-wrap:wrap;margin:.3rem 0 .6rem}
+.legend i{display:inline-block;width:16px;height:3px;vertical-align:middle;margin-right:.45rem;border-radius:2px}
+.legend i.ref{background:var(--beam)} .legend i.smp{background:var(--sample)} .legend i.sct{background:var(--scatter)} .legend i.sum{background:var(--fg)}
+.eq{font-family:var(--font-display);font-size:1.3rem;text-align:center;margin:1.1rem 0 1.3rem;overflow-x:auto;line-height:1.5}
+.eq i{font-style:italic}
+.eq .note{display:block;font-family:var(--font-body);font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+.two > *{min-width:0}
+.two h4{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 .4rem}
+.callout{border-left:3px solid var(--beam);padding:.2rem 0 .2rem 1rem;margin:1.2rem 0;max-width:68ch}
+.callout.sample{border-color:var(--sample)}
+.callout p:last-child{margin-bottom:0}
+.tbl{overflow-x:auto;margin:1.4rem 0}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.92rem}
+th,td{text-align:left;vertical-align:top;padding:.6rem .75rem;border-bottom:1px solid var(--line)}
+th{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tbody th{text-align:left;font-family:var(--font-body);font-size:.92rem;letter-spacing:0;text-transform:none;color:var(--muted);font-weight:500;width:9rem}
+.refs{list-style:none;padding:0;margin:0;font-size:.95rem}
+.refs li{padding:.45rem 0;border-bottom:1px solid var(--line-soft);max-width:80ch}
+.refs .who{font-weight:500}
+.refs .jr{font-family:var(--font-mono);font-size:.82rem;color:var(--muted)}
+.carpet-marker{position:absolute;top:0;bottom:0;width:2px;background:var(--sample);pointer-events:none}
+.small{font-size:.9rem;color:var(--muted)}
+footer{padding-top:2rem;font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow"><a href="https://jeanbilheux.github.io/" style="color:inherit;text-decoration:none">&larr; jeanbilheux.github.io</a> &nbsp;·&nbsp; An illustrated guide</div>
+  <h1>Neutron Grating Interferometry</h1>
+  <p class="lede">How two or three gratings turn a neutron phase shift of a few <em>micro-radians</em> into three images at once: transmission, differential phase, and dark-field.</p>
+  <div class="signals" id="signals">
+    <div class="sig"><svg id="mini-T" viewBox="0 0 220 90" role="img" aria-label="Sample curve lower than the reference curve"></svg><b>Transmission</b><span>The mean intensity drops. Same as a radiograph.</span></div>
+    <div class="sig"><svg id="mini-phi" viewBox="0 0 220 90" role="img" aria-label="Sample curve shifted sideways relative to the reference"></svg><b>Differential phase</b><span>The fringe pattern slides sideways: refraction.</span></div>
+    <div class="sig"><svg id="mini-dfi" viewBox="0 0 220 90" role="img" aria-label="Sample curve with smaller amplitude than the reference"></svg><b>Dark-field</b><span>The fringe contrast fades: small-angle scattering.</span></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <ul>
+    <li><a href="#why">Why gratings</a></li>
+    <li><a href="#talbot">Talbot effect</a></li>
+    <li><a href="#two">Talbot (2 gratings)</a></li>
+    <li><a href="#three">Talbot-Lau (3 gratings)</a></li>
+    <li><a href="#signals-sec">Reading the signals</a></li>
+    <li><a href="#farfield">Far-field</a></li>
+    <li><a href="#darkfield">Dark-field as SANS</a></li>
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#refs">References</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<section id="why">
+  <div class="section-head"><span class="eyebrow">The problem</span><h2>Why gratings at all</h2></div>
+  <div class="prose">
+    <p>A neutron travelling through matter sees a refractive index that is almost exactly one:</p>
+    <div class="eq"><i>n</i> = 1 − <i>δ</i>, &nbsp; <i>δ</i> = <i>λ</i><sup>2</sup> <i>N b</i><sub>c</sub> / 2π ≈ 10<sup>−6</sup> <span class="note">For aluminium at 4 Å, <i>δ</i> ≈ 5 × 10<sup>−6</sup>. <i>N b</i><sub>c</sub> is the coherent scattering length density.</span></div>
+    <p>A gradient of that index across the beam tilts the wavefront by an angle <i>α</i> of a few micro-radians. Over one metre that is a lateral displacement of a few micrometres, far below what an imaging detector with 50 to 100 µm pixels can see. Three things stand in the way of measuring it directly:</p>
+    <ul>
+      <li><b>The effect is tiny.</b> You need a ruler with micrometre graduations. A grating with a period of a few µm is that ruler.</li>
+      <li><b>Neutron sources are incoherent and dim.</b> Classical interferometry needs a source that is coherent across the whole instrument. A grating interferometer only needs coherence across one grating period.</li>
+      <li><b>Detectors are coarse.</b> Nobody can resolve 4 µm fringes with 50 µm pixels. A second grating converts the fringe position into a plain intensity, which any detector reads.</li>
+    </ul>
+    <p>Every design on this page is a different answer to those three constraints. They all share one building block: the Talbot self-imaging effect.</p>
+  </div>
+</section>
+
+<section id="talbot">
+  <div class="section-head"><span class="eyebrow">Building block</span><h2>The Talbot effect</h2></div>
+  <div class="prose">
+    <p>Illuminate a periodic grating with a (locally) plane wave and the field behind it is not a shadow. Diffraction orders interfere, and at well defined distances the grating reproduces an image of itself. For a grating of period <i>p</i> and wavelength <i>λ</i> the pattern repeats with the Talbot length</p>
+    <div class="eq"><i>z</i><sub>T</sub> = 2 <i>p</i><sup>2</sup> / <i>λ</i> <span class="note">For <i>p</i> = 7.97 µm and <i>λ</i> = 4.1 Å, <i>z</i><sub>T</sub> = 310 mm.</span></div>
+    <p>Between repeats the pattern goes through fractional self-images: shifted copies, copies with half the period, and (for a phase grating) places where a pure phase modulation turns into a pure intensity modulation. That last conversion is the whole trick: a phase grating absorbs nothing, yet a few centimetres downstream it produces a high-contrast intensity pattern. Explore the "Talbot carpet" below. Propagation distance runs left to right, the lateral position across three grating periods runs top to bottom.</p>
+  </div>
+
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><span>Grating at <i>z</i> = 0</span>
+        <div class="seg" role="radiogroup" aria-label="Grating type">
+          <label><input type="radio" name="gtype" value="abs" id="gtype-abs">absorption</label>
+          <label><input type="radio" name="gtype" value="pi2" id="gtype-pi2">π/2 phase</label>
+          <label><input type="radio" name="gtype" value="pi" id="gtype-pi" checked>π phase</label>
+        </div>
+      </div>
+      <div class="ctl"><label for="zslider">Propagation distance <i>z</i> / <i>z</i><sub>T</sub></label><input type="range" id="zslider" min="0" max="1" step="0.0025" value="0.0625"><span class="val" id="zval"></span></div>
+    </div>
+    <div class="carpet-wrap"><canvas id="carpet" width="720" height="240" aria-label="Talbot carpet: intensity behind the grating versus propagation distance and lateral position"></canvas><div class="carpet-marker" id="carpet-marker"></div></div>
+    <div class="chart" style="margin-top:.6rem"><svg id="profile" viewBox="0 0 720 120" role="img" aria-label="Intensity profile across three grating periods at the selected distance"></svg></div>
+    <div class="readout">
+      <div>distance for the worked example<br><b id="zphys"></b></div>
+      <div>peak-to-mean contrast of this profile<br><b id="zvis"></b></div>
+      <div>period of the pattern here<br><b id="zper"></b></div>
+    </div>
+  </div>
+  <figcaption style="margin-top:-.6rem">Computed from the paraxial Fresnel propagation of a 50 % duty-cycle grating, summing diffraction orders up to ±41. Dashed lines mark the fractional Talbot distances where an interferometer would place its analyser grating. Normalised to the brightest point of each carpet.</figcaption>
+
+  <div class="prose">
+    <p>Three things to notice:</p>
+    <ul>
+      <li><b>Absorption grating.</b> It is already an intensity pattern at <i>z</i> = 0, and it reappears at <i>z</i><sub>T</sub>. At <i>z</i><sub>T</sub>/4 and 3<i>z</i><sub>T</sub>/4 the pattern has half the period. It throws away half the beam before doing anything useful, so it is not used as the first grating.</li>
+      <li><b>π/2 phase grating.</b> Invisible at <i>z</i> = 0 (phase only), full contrast with the original period <i>p</i> at <i>z</i><sub>T</sub>/4 and 3<i>z</i><sub>T</sub>/4.</li>
+      <li><b>π phase grating.</b> Contrast appears with period <i>p</i>/2 at <i>z</i><sub>T</sub>/16, 3<i>z</i><sub>T</sub>/16, 5<i>z</i><sub>T</sub>/16 and so on. The first of these, <i>d</i><sub>1</sub> = <i>p</i><sup>2</sup>/8<i>λ</i>, is only 19 mm for the example grating, which keeps the instrument compact. Most neutron Talbot-Lau setups use a π grating for that reason.</li>
+    </ul>
+    <p>Note the λ-dependence. A phase grating etched to give π at 4.1 Å gives π/2 at 2 Å, and the distance of every self-image scales as 1/<i>λ</i>. On a time-of-flight instrument such as VENUS, each wavelength frame therefore sees a different point of this carpet. The fringe visibility oscillates with wavelength, and the grating design must pick the band to optimise.</p>
+  </div>
+</section>
+
+<section id="two">
+  <div class="section-head"><span class="eyebrow">2 gratings · G1 + G2</span><h2>The Talbot interferometer</h2></div>
+  <div class="prose">
+    <p>The simplest instrument places one phase grating G1 in a coherent beam and an absorption grating G2 at the first fractional Talbot distance <i>d</i>. A sample in front of G1 refracts the beam by <i>α</i>, so the self-image behind G1 slides sideways by <i>d</i>·<i>α</i>. G2, whose period matches the self-image, converts that slide into an intensity change the detector can read.</p>
+  </div>
+  <figure>
+    <div class="diagram">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Side view of a two-grating Talbot interferometer: slit source, sample, phase grating G1, self-image, absorption grating G2 and detector">
+      <defs>
+        <marker id="ti-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <pattern id="ti-abs" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="5" fill="currentColor"/></pattern>
+        <pattern id="ti-ph" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="5" fill="currentColor" opacity=".35"/></pattern>
+        <linearGradient id="ti-fade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" style="stop-color:var(--beam);stop-opacity:0"/><stop offset="1" style="stop-color:var(--beam);stop-opacity:.9"/></linearGradient>
+      </defs>
+      <polygon points="80,138 760,96 760,204 80,162" class="f-beam"/>
+      <text x="16" y="154" class="mono muted">λ</text>
+      <line x1="30" y1="150" x2="58" y2="150" class="dim" marker-end="url(#ti-arrow)"/>
+      <rect x="62" y="48" width="18" height="90" fill="currentColor"/>
+      <rect x="62" y="162" width="18" height="90" fill="currentColor"/>
+      <text x="71" y="272" text-anchor="middle">slit, width <tspan class="mono">s</tspan></text>
+      <ellipse cx="300" cy="150" rx="20" ry="44" class="f-sample"/>
+      <text x="300" y="92" text-anchor="middle">sample</text>
+      <line x1="80" y1="150" x2="300" y2="150" class="ray"/>
+      <line x1="300" y1="150" x2="740" y2="116" class="ray-dev"/>
+      <text x="612" y="104" text-anchor="middle" class="muted">refracted by <tspan class="mono">α</tspan> (exaggerated)</text>
+      <g stroke="url(#ti-fade)" stroke-width="3">
+        <line x1="450" y1="100" x2="576" y2="100"/><line x1="450" y1="110" x2="576" y2="110"/><line x1="450" y1="120" x2="576" y2="120"/><line x1="450" y1="130" x2="576" y2="130"/><line x1="450" y1="140" x2="576" y2="140"/><line x1="450" y1="150" x2="576" y2="150"/><line x1="450" y1="160" x2="576" y2="160"/><line x1="450" y1="170" x2="576" y2="170"/><line x1="450" y1="180" x2="576" y2="180"/><line x1="450" y1="190" x2="576" y2="190"/><line x1="450" y1="200" x2="576" y2="200"/>
+      </g>
+      <text x="513" y="222" text-anchor="middle" class="muted">self-image, period <tspan class="mono">p1/2</tspan></text>
+      <rect x="434" y="56" width="12" height="188" fill="url(#ti-ph)" stroke="currentColor"/>
+      <text x="440" y="30" text-anchor="middle">G1 · phase grating</text>
+      <text x="440" y="44" text-anchor="middle" class="mono muted">period p1, phase π</text>
+      <rect x="580" y="56" width="12" height="188" fill="url(#ti-abs)" stroke="currentColor"/>
+      <text x="586" y="30" text-anchor="middle">G2 · absorption grating</text>
+      <text x="586" y="44" text-anchor="middle" class="mono muted">p2 = p1/2</text>
+      <line x1="608" y1="118" x2="608" y2="182" class="dim" marker-start="url(#ti-arrow)" marker-end="url(#ti-arrow)"/>
+      <text x="616" y="154" class="mono muted">step x<tspan baseline-shift="sub" font-size="9">g</tspan></text>
+      <rect x="740" y="56" width="22" height="188" class="f-det" stroke="currentColor"/>
+      <text x="751" y="30" text-anchor="middle">detector</text>
+      <text x="751" y="44" text-anchor="middle" class="mono muted">pixel ≫ p2</text>
+      <line x1="80" y1="268" x2="434" y2="268" class="dim" marker-start="url(#ti-arrow)" marker-end="url(#ti-arrow)"/>
+      <text x="257" y="286" text-anchor="middle" class="mono">L   (coherence: λL/s ≥ p1)</text>
+      <line x1="446" y1="268" x2="580" y2="268" class="dim" marker-start="url(#ti-arrow)" marker-end="url(#ti-arrow)"/>
+      <text x="513" y="286" text-anchor="middle" class="mono">d = p1²/8λ</text>
+    </svg>
+    </div>
+    <figcaption>Two-grating Talbot interferometer. The slit must be narrow enough that the transverse coherence length λ<i>L</i>/<i>s</i> at G1 exceeds the grating period; the refracted ray shifts the self-image at G2 by <i>d</i>·<i>α</i>. Not to scale: <i>L</i> is metres, <i>d</i> is centimetres.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>Why the analyser grating is needed, and what "phase stepping" means</h3>
+    <p>A detector pixel is 10 to 25 times wider than the self-image period, so on its own it averages the fringes to a flat grey. G2 is a mask with the same period as the self-image. When its bars sit on the dark fringes, the bright fringes pass; slide it by half a period and the bars block them. Moving G2 in small steps across one period and recording the pixel value at each step traces a sinusoid. Everything the interferometer measures is a property of that sinusoid.</p>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="xg">G2 position <i>x</i><sub>g</sub> / <i>p</i><sub>2</sub></label><input type="range" id="xg" min="0" max="1" step="0.01" value="0"><span class="val" id="xgval">0.00</span></div>
+      <div class="ctl"><span>&nbsp;</span><button class="btn" id="stepbtn" type="button">Step through one period (8 steps)</button></div>
+    </div>
+    <div class="two">
+      <div><canvas id="step-cv" width="600" height="172" aria-label="Self-image fringes, the G2 mask and the transmitted light for the current grating position"></canvas></div>
+      <div class="chart"><svg id="step-chart" viewBox="0 0 360 172" role="img" aria-label="Fraction of beam reaching the pixel versus G2 position; a sinusoid sampled at eight steps"></svg></div>
+    </div>
+    <div class="readout">
+      <div>beam reaching the pixel<br><b id="step-out" class="beam"></b></div>
+      <div>open-beam reference without G2<br><b>100 %</b></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><b>The catch.</b> The coherence condition λ<i>L</i>/<i>s</i> ≥ <i>p</i><sub>1</sub> at 4 Å and <i>L</i> = 5 m demands a slit of about 0.2 mm, which starves the detector. Neutron imaging beams normally use apertures of 10 to 20 mm, so with two gratings alone the fringes wash out. The third grating fixes that.</p>
+  </div>
+</section>
+
+<section id="three">
+  <div class="section-head"><span class="eyebrow">3 gratings · G0 + G1 + G2</span><h2>The Talbot-Lau interferometer</h2></div>
+  <div class="prose">
+    <p>Put a coarse absorption grating G0 right after a large, incoherent source. Each slit of G0 is narrow enough to be its own coherent line source, so each slit produces its own sharp self-image at G2. The slits are mutually incoherent, so their self-images simply add as intensities. Lau's observation (1948) is that if the slit pitch <i>p</i><sub>0</sub> is chosen so that neighbouring self-images are displaced by exactly one period <i>p</i><sub>2</sub>, they add in register and the contrast survives. The source can then be as large as you like.</p>
+    <div class="eq"><i>p</i><sub>0</sub> = <i>p</i><sub>2</sub> · <i>L</i> / <i>d</i> <span class="note">Shift of the self-image per slit pitch: <i>p</i><sub>0</sub>·<i>d</i>/<i>L</i>. Setting that equal to <i>p</i><sub>2</sub> is the Lau condition.</span></div>
+  </div>
+  <figure>
+    <div class="diagram">
+    <svg viewBox="0 0 900 320" role="img" aria-label="Side view of a Talbot-Lau interferometer: extended source, source grating G0, sample, phase grating G1, analyser G2, detector; two G0 slits each illuminate G1 with their own coherent cone">
+      <defs>
+        <marker id="tl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <pattern id="tl-abs0" width="10" height="24" patternUnits="userSpaceOnUse" y="58"><rect width="10" height="16" fill="currentColor"/></pattern>
+        <pattern id="tl-abs" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="5" fill="currentColor"/></pattern>
+        <pattern id="tl-ph" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="5" fill="currentColor" opacity=".35"/></pattern>
+      </defs>
+      <rect x="28" y="58" width="24" height="184" class="f-det" stroke="currentColor"/>
+      <text x="40" y="30" text-anchor="middle">extended</text>
+      <text x="40" y="44" text-anchor="middle">source</text>
+      <polygon points="126,88 780,66 780,234 126,212" class="f-beam"/>
+      <rect x="114" y="58" width="12" height="184" fill="url(#tl-abs0)" stroke="currentColor"/>
+      <text x="120" y="30" text-anchor="middle">G0 · source grating</text>
+      <text x="120" y="44" text-anchor="middle" class="mono muted">absorption, p0 ≈ 1 mm</text>
+      <rect x="112" y="122" width="16" height="8" class="f-beam2"/>
+      <rect x="112" y="170" width="16" height="8" class="f-beam2"/>
+      <g class="ray" stroke-width="1.2"><line x1="128" y1="126" x2="520" y2="70"/><line x1="128" y1="126" x2="520" y2="230"/></g>
+      <g class="ray-dev" stroke-width="1.2"><line x1="128" y1="174" x2="520" y2="70"/><line x1="128" y1="174" x2="520" y2="230"/></g>
+      <text x="260" y="262" text-anchor="middle" class="muted">each slit illuminates G1 with its own coherent cone</text>
+      <ellipse cx="440" cy="150" rx="20" ry="44" class="f-sample"/>
+      <text x="440" y="92" text-anchor="middle">sample</text>
+      <rect x="514" y="56" width="12" height="188" fill="url(#tl-ph)" stroke="currentColor"/>
+      <text x="520" y="30" text-anchor="middle">G1 · phase</text>
+      <text x="520" y="44" text-anchor="middle" class="mono muted">p1 ≈ 8 µm</text>
+      <rect x="600" y="56" width="12" height="188" fill="url(#tl-abs)" stroke="currentColor"/>
+      <text x="606" y="30" text-anchor="middle">G2 · analyser</text>
+      <text x="606" y="44" text-anchor="middle" class="mono muted">p2 ≈ 4 µm</text>
+      <g stroke="var(--beam)" stroke-width="3" opacity=".8">
+        <line x1="530" y1="100" x2="596" y2="100"/><line x1="530" y1="112" x2="596" y2="112"/><line x1="530" y1="124" x2="596" y2="124"/><line x1="530" y1="136" x2="596" y2="136"/><line x1="530" y1="148" x2="596" y2="148"/><line x1="530" y1="160" x2="596" y2="160"/><line x1="530" y1="172" x2="596" y2="172"/><line x1="530" y1="184" x2="596" y2="184"/><line x1="530" y1="196" x2="596" y2="196"/>
+      </g>
+      <rect x="760" y="56" width="22" height="188" class="f-det" stroke="currentColor"/>
+      <text x="771" y="30" text-anchor="middle">detector</text>
+      <line x1="126" y1="284" x2="514" y2="284" class="dim" marker-start="url(#tl-arrow)" marker-end="url(#tl-arrow)"/>
+      <text x="320" y="302" text-anchor="middle" class="mono">L ≈ 5 m</text>
+      <line x1="526" y1="284" x2="600" y2="284" class="dim" marker-start="url(#tl-arrow)" marker-end="url(#tl-arrow)"/>
+      <text x="563" y="302" text-anchor="middle" class="mono">d ≈ 20 mm</text>
+      <line x1="612" y1="284" x2="760" y2="284" class="dim" marker-start="url(#tl-arrow)" marker-end="url(#tl-arrow)"/>
+      <text x="686" y="302" text-anchor="middle" class="mono">free</text>
+    </svg>
+    </div>
+    <figcaption>Talbot-Lau interferometer. G0 slices the wide, incoherent source into many narrow slits. Two of them are highlighted with their illumination cones. Each produces a self-image of G1 at G2; the Lau condition makes all of them line up. Not to scale.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="two">
+      <div class="chart"><h4>Lau condition satisfied: <span class="mono">p0 = p2·L/d</span></h4><svg id="lau-ok" role="img" aria-label="Four slit contributions shifted by exactly one period; their sum keeps full contrast"></svg></div>
+      <div class="chart"><h4>Wrong pitch: shift of half a period</h4><svg id="lau-bad" role="img" aria-label="Four slit contributions shifted by half a period; their sum is flat"></svg></div>
+    </div>
+    <figcaption>Each curve is the self-image produced by one G0 slit at the plane of G2. Intensities add because the slits are mutually incoherent. With the right pitch, the sum keeps the contrast; with the wrong pitch it is washed out.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>Design calculator</h3>
+    <p>The geometry follows from four choices: wavelength, G1 period, G1 phase shift and the G0 to G1 distance. The defaults reproduce the first neutron Talbot-Lau interferometer (Pfeiffer et al. 2006, at PSI). Change them and see what the gratings and the distances become.</p>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="c-lam">wavelength λ (Å)</label><input type="number" id="c-lam" value="4.1" min="0.5" max="20" step="0.1"></div>
+      <div class="ctl"><label for="c-p1">G1 period <i>p</i><sub>1</sub> (µm)</label><input type="number" id="c-p1" value="7.97" min="0.5" max="100" step="0.01"></div>
+      <div class="ctl"><label for="c-phase">G1 phase shift</label><select id="c-phase"><option value="pi" selected>π</option><option value="pi2">π/2</option></select></div>
+      <div class="ctl"><label for="c-n">Talbot order <i>n</i></label><select id="c-n"><option value="1" selected>1</option><option value="3">3</option><option value="5">5</option></select></div>
+      <div class="ctl"><label for="c-L">G0 to G1 distance <i>L</i> (m)</label><input type="number" id="c-L" value="5.23" min="0.2" max="50" step="0.01"></div>
+    </div>
+    <div class="readout">
+      <div>Talbot length <i>z</i><sub>T</sub> = 2<i>p</i><sub>1</sub><sup>2</sup>/λ<br><b id="c-zt"></b></div>
+      <div>G1 to G2 distance <i>d</i><sub>n</sub><br><b id="c-d"></b></div>
+      <div>G2 period <i>p</i><sub>2</sub> (with cone magnification)<br><b id="c-p2"></b></div>
+      <div>G0 period <i>p</i><sub>0</sub> = <i>p</i><sub>2</sub>·<i>L</i>/<i>d</i><br><b id="c-p0"></b></div>
+      <div>silicon depth for that phase shift<br><b id="c-h"></b></div>
+      <div>autocorrelation length ξ for a sample at G1<br><b id="c-xi"></b></div>
+    </div>
+    <p class="small" style="margin:.8rem 0 0">Formulas: <i>d</i><sub>n</sub> = <i>n p</i><sub>1</sub><sup>2</sup>/8λ for a π grating (<i>p</i><sub>2</sub> = <i>p</i><sub>1</sub>/2), <i>d</i><sub>n</sub> = <i>n p</i><sub>1</sub><sup>2</sup>/2λ for π/2 (<i>p</i><sub>2</sub> = <i>p</i><sub>1</sub>), both multiplied by (<i>L</i>+<i>d</i>)/<i>L</i> for the diverging beam. Silicon depth <i>h</i> = φ/(λ <i>N b</i><sub>c</sub>) with <i>N b</i><sub>c</sub>(Si) = 2.07 × 10<sup>−6</sup> Å<sup>−2</sup>. ξ = λ<i>d</i>/<i>p</i><sub>2</sub>.</p>
+  </div>
+  <div class="prose">
+    <p>Numbers worth remembering for neutrons: the analyser G2 and the source grating G0 are absorption gratings, usually gadolinium about 10 to 30 µm thick with a period of a few µm (G2) or about a millimetre (G0). G1 is a silicon phase grating a few tens of µm deep. Each absorption grating throws away half the beam, so a Talbot-Lau instrument transmits at most about a quarter of the incoming neutrons before the sample.</p>
+  </div>
+</section>
+
+<section id="signals-sec">
+  <div class="section-head"><span class="eyebrow">Analysis</span><h2>Reading the three signals</h2></div>
+  <div class="prose">
+    <p>Phase stepping is done twice: once with the sample out (reference) and once with it in. For every pixel both scans are fitted with</p>
+    <div class="eq"><i>I</i>(<i>x</i><sub>g</sub>) = <i>a</i><sub>0</sub> + <i>a</i><sub>1</sub> cos(2π <i>x</i><sub>g</sub>/<i>p</i><sub>2</sub> + φ)</div>
+    <p>and the three images are ratios and differences of the fit parameters:</p>
+    <div class="eq">
+      <i>T</i> = <i>a</i><sub>0</sub><sup>s</sup> / <i>a</i><sub>0</sub><sup>r</sup> &nbsp;&nbsp;&nbsp;
+      Δφ = φ<sup>s</sup> − φ<sup>r</sup> &nbsp;&nbsp;&nbsp;
+      DFI = <i>V</i><sup>s</sup> / <i>V</i><sup>r</sup>, &nbsp; <i>V</i> = <i>a</i><sub>1</sub>/<i>a</i><sub>0</sub>
+      <span class="note">s = sample scan, r = reference scan, V = visibility.</span>
+    </div>
+    <p>Move the sliders to see how each sample property reshapes the stepping curve. The sampled points are what the detector records at eight grating positions; the fit recovers the curve.</p>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="sig-T">attenuation: transmission <i>T</i></label><input type="range" id="sig-T" min="0.1" max="1" step="0.01" value="0.7"><span class="val" id="sig-T-v"></span></div>
+      <div class="ctl"><label for="sig-phi">refraction: phase shift Δφ (rad)</label><input type="range" id="sig-phi" min="-3.14" max="3.14" step="0.01" value="0.8"><span class="val" id="sig-phi-v"></span></div>
+      <div class="ctl"><label for="sig-dfi">scattering: visibility ratio</label><input type="range" id="sig-dfi" min="0" max="1" step="0.01" value="0.6"><span class="val" id="sig-dfi-v"></span></div>
+    </div>
+    <div class="legend"><span><i class="ref"></i>reference scan (sample out)</span><span><i class="smp"></i>sample scan</span></div>
+    <div class="chart"><svg id="sig-chart" role="img" aria-label="Phase stepping curves for reference and sample; the sample curve is lower, shifted and flatter according to the sliders"></svg></div>
+    <div class="readout">
+      <div>transmission image<br><b id="sig-out-T" class="smp"></b></div>
+      <div>differential phase image<br><b id="sig-out-phi" class="smp"></b></div>
+      <div>dark-field image<br><b id="sig-out-dfi" class="smp"></b></div>
+      <div>refraction angle α = <i>p</i><sub>2</sub>Δφ / 2π<i>d</i><br><b id="sig-out-alpha"></b></div>
+    </div>
+    <p class="small" style="margin:.8rem 0 0">Reference visibility set to 30 %, typical for neutron Talbot-Lau. The refraction angle uses <i>p</i><sub>2</sub> = 4 µm and <i>d</i> = 19.4 mm. In practice Δφ wraps at ±π, so strongly refracting edges need phase unwrapping.</p>
+  </div>
+  <div class="prose">
+    <p>The differential phase is called differential because the interferometer is sensitive to the gradient of the phase across the grating lines, not to the phase itself. Integrating the DPC image along that direction recovers the phase, hence the thickness-weighted <i>N b</i><sub>c</sub> of the sample. The dark-field image has no counterpart in conventional radiography; it is what the next sections are about.</p>
+  </div>
+</section>
+
+<section id="farfield">
+  <div class="section-head"><span class="eyebrow">2 phase gratings · no analyser</span><h2>The far-field interferometer</h2></div>
+  <div class="prose">
+    <p>The Talbot designs pay twice for their micrometre fringes: an absorbing analyser throws away half the beam, and the analyser has to be stepped. Miao and colleagues (2016, with X-rays) and Pushin, Sarenac, Hussey and colleagues (2017, with neutrons) showed a way around both. Two <b>phase</b> gratings with the same period <i>p</i> are placed a small distance <i>D</i> apart in a diverging beam, far from the detector. Each grating's pattern is projected onto the detector with a slightly different magnification, and the two nearly-equal periods beat against each other. The beat is a moiré fringe with a period of millimetres, which an ordinary imaging detector resolves directly:</p>
+    <div class="eq"><i>P</i> = <i>p</i> · <i>L</i> / <i>D</i> <span class="note"><i>L</i> is the total source to detector distance. With <i>p</i> = 2.4 µm, <i>L</i> = 4 m and <i>D</i> = 10 mm, <i>P</i> ≈ 1 mm.</span></div>
+    <p>Nothing absorbs, there is no Talbot distance to respect, and the fringe period does not depend on wavelength, so a polychromatic beam keeps its fringes (only the visibility varies with λ, since the phase shift does). The whole interferometer is a few centimetres long and can be placed anywhere in the beam.</p>
+  </div>
+  <figure>
+    <div class="diagram">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Side view of a far-field interferometer: slit source, two closely spaced phase gratings, diffracted orders fanning to a distant detector that shows wide moiré fringes">
+      <defs>
+        <marker id="ff-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <pattern id="ff-ph" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="5" fill="currentColor" opacity=".35"/></pattern>
+      </defs>
+      <polygon points="80,138 770,80 770,220 80,162" class="f-beam"/>
+      <rect x="62" y="48" width="18" height="90" fill="currentColor"/>
+      <rect x="62" y="162" width="18" height="90" fill="currentColor"/>
+      <text x="71" y="272" text-anchor="middle">slit source</text>
+      <rect x="296" y="56" width="10" height="188" fill="url(#ff-ph)" stroke="currentColor"/>
+      <rect x="330" y="56" width="10" height="188" fill="url(#ff-ph)" stroke="currentColor"/>
+      <text x="318" y="30" text-anchor="middle">G1, G2 · both phase gratings</text>
+      <text x="318" y="44" text-anchor="middle" class="mono muted">same period p, spacing D</text>
+      <g class="ray" stroke-width="1.2">
+        <line x1="301" y1="150" x2="770" y2="150"/><line x1="301" y1="150" x2="770" y2="92"/><line x1="301" y1="150" x2="770" y2="208"/>
+        <line x1="335" y1="150" x2="770" y2="100" stroke-dasharray="4 3"/><line x1="335" y1="150" x2="770" y2="200" stroke-dasharray="4 3"/>
+      </g>
+      <text x="470" y="112" class="muted">diffraction orders 0, ±1 from G1 (solid) and G2 (dashed)</text>
+      <text x="470" y="126" class="muted">overlap on the detector and beat</text>
+      <ellipse cx="560" cy="150" rx="20" ry="44" class="f-sample"/>
+      <text x="560" y="92" text-anchor="middle">sample</text>
+      <rect x="770" y="56" width="22" height="188" class="f-det" stroke="currentColor"/>
+      <g class="f-beam2"><rect x="771" y="57" width="20" height="12"/><rect x="771" y="80" width="20" height="12"/><rect x="771" y="103" width="20" height="12"/><rect x="771" y="126" width="20" height="12"/><rect x="771" y="149" width="20" height="12"/><rect x="771" y="172" width="20" height="12"/><rect x="771" y="195" width="20" height="12"/><rect x="771" y="218" width="20" height="12"/></g>
+      <text x="781" y="30" text-anchor="middle">detector</text>
+      <text x="781" y="44" text-anchor="middle" class="mono muted">moiré period P ≈ mm</text>
+      <line x1="80" y1="262" x2="296" y2="262" class="dim" marker-start="url(#ff-arrow)" marker-end="url(#ff-arrow)"/>
+      <text x="188" y="280" text-anchor="middle" class="mono">L1</text>
+      <line x1="306" y1="262" x2="330" y2="262" class="dim" marker-start="url(#ff-arrow)" marker-end="url(#ff-arrow)"/>
+      <text x="318" y="280" text-anchor="middle" class="mono">D</text>
+      <line x1="340" y1="262" x2="770" y2="262" class="dim" marker-start="url(#ff-arrow)" marker-end="url(#ff-arrow)"/>
+      <text x="555" y="280" text-anchor="middle" class="mono">L2</text>
+      <text x="425" y="296" text-anchor="middle" class="mono muted">L = L1 + D + L2 ,   fringe period P = p·L/D</text>
+    </svg>
+    </div>
+    <figcaption>Far-field (two-phase-grating) interferometer. The sample can sit before or after the grating pair. The detector sees millimetre-scale fringes directly, so no analyser grating is needed. Not to scale.</figcaption>
+  </figure>
+
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="ff-p">grating period <i>p</i> (µm)</label><input type="range" id="ff-p" min="1" max="5" step="0.1" value="2.4"><span class="val" id="ff-p-v"></span></div>
+      <div class="ctl"><label for="ff-D">grating spacing <i>D</i> (mm)</label><input type="range" id="ff-D" min="1" max="50" step="0.5" value="10"><span class="val" id="ff-D-v"></span></div>
+      <div class="ctl"><label for="ff-L">source to detector <i>L</i> (m)</label><input type="range" id="ff-L" min="2" max="10" step="0.1" value="4"><span class="val" id="ff-L-v"></span></div>
+      <div class="ctl"><label for="ff-lam">wavelength λ (Å)</label><input type="range" id="ff-lam" min="1" max="10" step="0.1" value="4.4"><span class="val" id="ff-lam-v"></span></div>
+    </div>
+    <div class="two">
+      <div>
+        <h4 style="font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 .4rem">What the detector records (20 mm field)</h4>
+        <canvas id="ff-det" width="600" height="80" aria-label="Moiré fringes across a 20 millimetre detector field for the chosen geometry"></canvas>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 .4rem">Why: two projected periods beat (exaggerated, D/L1 = 0.1)</h4>
+        <canvas id="ff-beat" width="600" height="80" aria-label="Two line patterns with slightly different periods and their product, showing a beat"></canvas>
+      </div>
+    </div>
+    <div class="readout">
+      <div>moiré period <i>P</i> = <i>p</i>·<i>L</i>/<i>D</i><br><b id="ff-P" class="beam"></b></div>
+      <div>fringes across a 20 mm field<br><b id="ff-n"></b></div>
+      <div>autocorrelation length ξ (sample just after G2)<br><b id="ff-xi" class="smp"></b></div>
+      <div>distance G2 to detector <i>L</i><sub>2</sub> (with <i>L</i><sub>1</sub> = 1 m)<br><b id="ff-L2"></b></div>
+    </div>
+    <p class="small" style="margin:.8rem 0 0">ξ = λ <i>L</i><sub>2</sub> / <i>P</i> = λ <i>L</i><sub>2</sub> <i>D</i> / (<i>p L</i>). Moving the gratings a few millimetres apart changes ξ by an order of magnitude without touching the wavelength or the sample. That is the far-field design's main selling point for dark-field work.</p>
+  </div>
+  <div class="prose">
+    <p>Variants exist. A third phase grating in the middle (Sarenac et al. 2018) doubles the fringe period for the same <i>D</i> and relaxes the source coherence, so a larger slit can be used. A source grating G0 can be added in front, exactly as in the Talbot-Lau case, when the beam is too incoherent for the slit. And since the moiré period is set by geometry alone, these instruments work well in white or pulsed beams.</p>
+  </div>
+</section>
+
+<section id="darkfield">
+  <div class="section-head"><span class="eyebrow">Interpretation</span><h2>Dark-field is small-angle scattering in real space</h2></div>
+  <div class="prose">
+    <p>Why does scattering reduce the fringe visibility? A grating interferometer compares the wave at two points separated by a fixed transverse distance, the <b>autocorrelation length</b> ξ. Small-angle scattering by structures in the sample randomises the phase between those two points, and the fringe contrast falls. Strobl (2014) showed that for a sample of thickness <i>t</i> with macroscopic scattering cross-section Σ the dark-field signal is</p>
+    <div class="eq">DFI(ξ) = exp[ −Σ <i>t</i> (1 − <i>G</i>(ξ)) ], &nbsp; ξ = λ <i>L</i><sub>s</sub> / <i>p</i><sub>2</sub> <span class="note"><i>G</i>(ξ) is the projected real-space correlation function of the structure. <i>L</i><sub>s</sub> is the sample to analyser distance (Talbot-Lau) or the sample to detector distance divided by <i>P</i>/<i>p</i><sub>2</sub> equivalents (far-field, see the box above).</span></div>
+    <p>That is the same correlation function spin-echo SANS measures. For monodisperse spheres of diameter <i>D</i><sub>s</sub> it is known in closed form (Andersson et al. 2008): <i>G</i> = 1 at ξ = 0 and falls to zero at ξ = <i>D</i><sub>s</sub>. So DFI(ξ) starts at 1, drops, and levels off at exp(−Σ<i>t</i>) once ξ exceeds the structure size. The knee gives the size; the plateau gives the amount of scattering material.</p>
+  </div>
+  <div class="bench">
+    <div class="controls">
+      <div class="ctl"><label for="df-d">sphere diameter <i>D</i><sub>s</sub> (µm)</label><input type="range" id="df-d" min="0.3" max="10" step="0.1" value="3"><span class="val" id="df-d-v"></span></div>
+      <div class="ctl"><label for="df-st">scattering strength Σ<i>t</i></label><input type="range" id="df-st" min="0.1" max="4" step="0.05" value="1.5"><span class="val" id="df-st-v"></span></div>
+    </div>
+    <div class="legend"><span><i class="sct"></i>DFI(ξ) for spheres</span><span><i class="sum"></i>plateau exp(−Σt)</span></div>
+    <div class="chart"><svg id="dfi-chart" role="img" aria-label="Dark-field signal versus autocorrelation length for spheres: it falls from one and levels off beyond the sphere diameter"></svg></div>
+    <p class="small" style="margin:.6rem 0 0">The two brackets under the axis show which ξ each instrument reaches. Talbot-Lau: <i>p</i><sub>2</sub> = 4 µm, <i>L</i><sub>s</sub> = 19.4 mm, λ swept from 2 to 8 Å by time of flight. Far-field: <i>p</i> = 2.4 µm, <i>L</i> = 4 m, <i>L</i><sub>2</sub> = 3 m, λ = 4.4 Å, <i>D</i> swept from 1 to 50 mm.</p>
+  </div>
+  <div class="prose">
+    <p>Three ways to scan ξ, one per instrument type:</p>
+    <ul>
+      <li><b>Talbot-Lau at a pulsed source.</b> ξ is proportional to λ, so a time-of-flight measurement delivers a whole ξ scan in one exposure. The grating is designed for one wavelength, so the reference visibility varies across the band and must be measured per wavelength bin.</li>
+      <li><b>Talbot-Lau, sample position.</b> Moving the sample along the beam changes <i>L</i><sub>s</sub>, hence ξ, at fixed λ. Limited by the space between gratings.</li>
+      <li><b>Far-field.</b> Change the grating spacing <i>D</i>. Two orders of magnitude in ξ with a translation stage, at a fixed wavelength and a fixed sample position.</li>
+    </ul>
+    <p>Dark-field imaging with neutrons has been used for magnetic domain walls (they refract the two spin states in opposite directions), porosity in ceramics and additively manufactured metals, cracks, powders and fibre orientation in composites. Anything with structure between about 100 nm and 10 µm that is invisible in transmission.</p>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="section-head"><span class="eyebrow">Side by side</span><h2>Which design when</h2></div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th scope="col"></th><th scope="col">Talbot · 2 gratings</th><th scope="col">Talbot-Lau · 3 gratings</th><th scope="col">Far-field · 2 phase gratings</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Gratings</th><td>G1 phase, G2 absorption</td><td>G0 absorption, G1 phase, G2 absorption</td><td>G1 and G2 both phase (a third phase grating or a G0 can be added)</td></tr>
+        <tr><th scope="row">Source</th><td>Must be coherent across <i>p</i><sub>1</sub>: narrow slit or pinhole, low flux</td><td>Any extended source; G0 makes it an array of coherent slits</td><td>Slit source; coherence requirement similar to Talbot but relaxed by the large fringe period and by a third grating</td></tr>
+        <tr><th scope="row">Grating distances</th><td>G2 at a fractional Talbot distance, <i>d</i> ∝ <i>p</i><sub>1</sub><sup>2</sup>/λ</td><td>Same, plus <i>p</i><sub>0</sub> = <i>p</i><sub>2</sub><i>L</i>/<i>d</i></td><td>Any small <i>D</i>; no Talbot condition</td></tr>
+        <tr><th scope="row">Fringe at the detector</th><td>Micrometres, unresolved: analyser + phase stepping</td><td>Micrometres, unresolved: analyser + phase stepping</td><td>Millimetres, resolved directly; stepping optional</td></tr>
+        <tr><th scope="row">Flux after the gratings</th><td>About ½ (G2) times a tiny aperture</td><td>About ¼ (G0 and G2)</td><td>Close to 1 (nothing absorbs)</td></tr>
+        <tr><th scope="row">Wavelength</th><td colspan="2">Optimised for one λ; <i>d</i> and the phase shift both scale with λ. TOF gives λ-resolved data with varying visibility.</td><td>Fringe period independent of λ; only the visibility depends on it. Suits white and pulsed beams.</td></tr>
+        <tr><th scope="row">Scanning ξ</th><td>λ or sample position</td><td>λ (time of flight) or sample position</td><td>Grating spacing <i>D</i>, λ, or sample position</td></tr>
+        <tr><th scope="row">First neutron demonstrations</th><td>Momose 2003 (X-rays); with neutrons mostly as the Talbot-Lau form</td><td>Pfeiffer 2006; Strobl 2008 dark-field tomography; Grünzweig 2008 magnetic domains</td><td>Pushin 2017; Sarenac 2018 (three phase gratings)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>One more variant deserves a mention: a single phase grating with a detector that can resolve the self-image directly (a few µm pixels, which for neutrons means a thin scintillator and a microscope objective). It needs no analyser, but the field of view is tiny and the count rate per pixel very low. The far-field design is the practical way to get rid of the analyser at full field of view.</p>
+  </div>
+</section>
+
+<section id="refs">
+  <div class="section-head"><span class="eyebrow">Further reading</span><h2>References</h2></div>
+  <ul class="refs">
+    <li><span class="who">H. F. Talbot</span>, Facts relating to optical science, <span class="jr">Philos. Mag. 9, 401 (1836)</span>. The self-imaging effect.</li>
+    <li><span class="who">E. Lau</span>, Beugungserscheinungen an Doppelrastern, <span class="jr">Ann. Phys. 437, 417 (1948)</span>. Fringes from an incoherent source through two gratings.</li>
+    <li><span class="who">A. Momose et al.</span>, Demonstration of X-ray Talbot interferometry, <span class="jr">Jpn. J. Appl. Phys. 42, L866 (2003)</span>.</li>
+    <li><span class="who">T. Weitkamp et al.</span>, X-ray phase imaging with a grating interferometer, <span class="jr">Opt. Express 13, 6296 (2005)</span>. Phase stepping and the fractional Talbot distances.</li>
+    <li><span class="who">F. Pfeiffer, T. Weitkamp, O. Bunk, C. David</span>, Phase retrieval and differential phase-contrast imaging with low-brilliance X-ray sources, <span class="jr">Nat. Phys. 2, 258 (2006)</span>. The Talbot-Lau idea with a source grating.</li>
+    <li><span class="who">F. Pfeiffer et al.</span>, Neutron phase imaging and tomography, <span class="jr">Phys. Rev. Lett. 96, 215505 (2006)</span>. First neutron Talbot-Lau interferometer (the calculator defaults).</li>
+    <li><span class="who">M. Strobl et al.</span>, Neutron dark-field tomography, <span class="jr">Phys. Rev. Lett. 101, 123902 (2008)</span>.</li>
+    <li><span class="who">C. Grünzweig et al.</span>, Neutron decoherence imaging for visualizing bulk magnetic domain structures, <span class="jr">Phys. Rev. Lett. 101, 025504 (2008)</span>.</li>
+    <li><span class="who">R. Andersson, L. F. van Heijkamp, I. M. de Schepper, W. G. Bouwman</span>, Analysis of spin-echo small-angle neutron scattering measurements, <span class="jr">J. Appl. Cryst. 41, 868 (2008)</span>. The sphere correlation function used above.</li>
+    <li><span class="who">M. Strobl</span>, General solution for quantitative dark-field contrast imaging with grating interferometers, <span class="jr">Sci. Rep. 4, 7243 (2014)</span>. DFI = exp[−Σt(1−G(ξ))].</li>
+    <li><span class="who">M. Strobl et al.</span>, Wavelength-dispersive dark-field contrast: micrometre structure characterization in neutron imaging, <span class="jr">J. Appl. Cryst. 49, 569 (2016)</span>. Scanning ξ with time of flight.</li>
+    <li><span class="who">H. Miao et al.</span>, A universal moiré effect and application in X-ray phase-contrast imaging, <span class="jr">Nat. Phys. 12, 830 (2016)</span>. The two-phase-grating far-field interferometer.</li>
+    <li><span class="who">D. A. Pushin et al.</span>, Far-field interferometry beyond the Talbot regime, <span class="jr">Phys. Rev. A 95, 043637 (2017)</span>. Neutron far-field interferometer.</li>
+    <li><span class="who">D. Sarenac et al.</span>, Three phase-grating moiré neutron interferometer for large interferometer area applications, <span class="jr">Phys. Rev. Lett. 120, 113201 (2018)</span>.</li>
+  </ul>
+</section>
+
+</main>
+<footer>All figures are computed in the page from the formulas shown; nothing is a measured data set. Worked numbers use the PSI 2006 geometry unless stated otherwise.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const SVGNS='http://www.w3.org/2000/svg';
+function mk(tag,attrs,parent){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function txt(parent,x,y,str,attrs){const t=mk('text',Object.assign({x:x,y:y},attrs||{}),parent);t.textContent=str;return t;}
+function css(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+function hex2rgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function mix(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')';}
+const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const themeWatchers=[];
+if(window.matchMedia){const mq=window.matchMedia('(prefers-color-scheme: dark)');const h=()=>themeWatchers.forEach(f=>f());if(mq.addEventListener)mq.addEventListener('change',h);else if(mq.addListener)mq.addListener(h);}
+new MutationObserver(()=>themeWatchers.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- hero: the three signals ---------- */
+(function(){
+  function draw(id,kind){
+    const svg=$(id); if(!svg)return;
+    const ref=[],smp=[];
+    for(let i=0;i<=80;i++){const x=i/80;const r=1+0.5*Math.cos(2*Math.PI*x);let s;
+      if(kind==='T')s=0.55*(1+0.5*Math.cos(2*Math.PI*x));else if(kind==='phi')s=1+0.5*Math.cos(2*Math.PI*x+1.3);else s=1+0.5*0.35*Math.cos(2*Math.PI*x);
+      ref.push((10+x*200).toFixed(1)+','+(84-r*44).toFixed(1));smp.push((10+x*200).toFixed(1)+','+(84-s*44).toFixed(1));}
+    mk('line',{x1:10,x2:210,y1:84,y2:84,class:'axis'},svg);
+    mk('polyline',{points:ref.join(' '),class:'s-ref',opacity:.45},svg);
+    mk('polyline',{points:smp.join(' '),class:'s-smp'},svg);
+  }
+  draw('mini-T','T');draw('mini-phi','phi');draw('mini-dfi','dfi');
+})();
+
+/* ---------- Talbot carpet ---------- */
+(function(){
+  const cv=$('carpet');if(!cv)return;const ctx=cv.getContext('2d');
+  const W=720,H=240,PER=3,N=41,M=256;const cache={};
+  const EX={p1:7.97e-6,lam:4.1e-10};const zT=2*EX.p1*EX.p1/EX.lam; // m
+  function ramp(t){ // single-hue sequential: near-black -> teal -> pale
+    const a=[11,18,22],b=[0,146,168],c=[228,248,250];
+    if(t<0.55){const u=t/0.55;return [a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];}
+    const u=(t-0.55)/0.45;return [b[0]+(c[0]-b[0])*u,b[1]+(c[1]-b[1])*u,b[2]+(c[2]-b[2])*u];
+  }
+  function coeffs(type){
+    const fr=new Float64Array(M),fi=new Float64Array(M);
+    for(let m=0;m<M;m++){const ridge=m<M/2;
+      if(type==='abs'){fr[m]=ridge?0:1;fi[m]=0;}
+      else{const phi=ridge?(type==='pi'?Math.PI:Math.PI/2):0;fr[m]=Math.cos(phi);fi[m]=Math.sin(phi);}}
+    const ns=[],cr=[],ci=[];
+    for(let n=-N;n<=N;n++){let sr=0,si=0;for(let m=0;m<M;m++){const a=-2*Math.PI*n*m/M,c=Math.cos(a),s=Math.sin(a);sr+=fr[m]*c-fi[m]*s;si+=fr[m]*s+fi[m]*c;}
+      sr/=M;si/=M;if(sr*sr+si*si>1e-10){ns.push(n);cr.push(sr);ci.push(si);}}
+    return {ns:ns,cr:cr,ci:ci};
+  }
+  function compute(type){
+    if(cache[type])return cache[type];
+    const co=coeffs(type),K=co.ns.length;
+    const cx=new Float64Array(K*H),sx=new Float64Array(K*H);
+    for(let k=0;k<K;k++)for(let py=0;py<H;py++){const ph=2*Math.PI*co.ns[k]*PER*(py+0.5)/H;cx[k*H+py]=Math.cos(ph);sx[k*H+py]=Math.sin(ph);}
+    const I=new Float32Array(W*H);let max=0;const pr=new Float64Array(K),pi=new Float64Array(K);
+    for(let px=0;px<W;px++){const zt=px/(W-1);
+      for(let k=0;k<K;k++){const ph=-2*Math.PI*co.ns[k]*co.ns[k]*zt,c=Math.cos(ph),s=Math.sin(ph);pr[k]=co.cr[k]*c-co.ci[k]*s;pi[k]=co.cr[k]*s+co.ci[k]*c;}
+      for(let py=0;py<H;py++){let sr=0,si=0;for(let k=0;k<K;k++){const c=cx[k*H+py],s=sx[k*H+py];sr+=pr[k]*c-pi[k]*s;si+=pr[k]*s+pi[k]*c;}
+        const v=sr*sr+si*si;I[py*W+px]=v;if(v>max)max=v;}}
+    const img=ctx.createImageData(W,H),d=img.data;
+    for(let i=0;i<W*H;i++){const rgb=ramp(Math.min(1,I[i]/max));d[4*i]=rgb[0];d[4*i+1]=rgb[1];d[4*i+2]=rgb[2];d[4*i+3]=255;}
+    return cache[type]={img:img,I:I,max:max};
+  }
+  const MARKS={
+    abs:[[0.25,'zᵀ/4'],[0.5,'zᵀ/2'],[0.75,'3zᵀ/4'],[1,'zᵀ']],
+    pi2:[[0.25,'zᵀ/4'],[0.75,'3zᵀ/4']],
+    pi:[[1/16,'1/16'],[3/16,'3/16'],[5/16,'5/16'],[7/16,'7/16'],[9/16,'9/16'],[11/16,'11/16'],[13/16,'13/16'],[15/16,'15/16']]
+  };
+  const prof=$('profile');const PW=720,PH=120,pml=40,pmr=12,pmt=10,pmb=28;
+  const pg=mk('g',{},prof);
+  for(let v=0;v<=1;v+=0.5){const y=pmt+(PH-pmt-pmb)*(1-v);mk('line',{x1:pml,x2:PW-pmr,y1:y,y2:y,class:'grid'},pg);txt(pg,pml-6,y+4,v.toFixed(1),{class:'tick','text-anchor':'end'});}
+  for(let k=0;k<=3;k++){const x=pml+(PW-pml-pmr)*k/3;txt(pg,x,PH-pmb+16,k+' p',{class:'tick','text-anchor':'middle'});mk('line',{x1:x,x2:x,y1:pmt,y2:PH-pmb,class:'grid'},pg);}
+  txt(pg,PW-pmr,PH-2,'lateral position (grating periods)',{class:'lbl','text-anchor':'end'});
+  txt(pg,pml,PH-2,'intensity at the selected z',{class:'lbl'});
+  const line=mk('polyline',{class:'s-smp',points:''},prof);
+  function type(){const r=document.querySelector('input[name=gtype]:checked');return r?r.value:'pi';}
+  function draw(){
+    const t=type(),res=compute(t),zt=+$('zslider').value;
+    ctx.putImageData(res.img,0,0);
+    ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='11px "JetBrains Mono", monospace';
+    const marks=MARKS[t];
+    marks.forEach(function(mk_,i){const x=Math.round(mk_[0]*(W-1))+0.5;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+      ctx.textAlign=x>W-36?'right':'center';ctx.fillText(mk_[1],x,14);});
+    if(t==='pi'){ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText('fractions of zᵀ',W-6,H-8);}
+    ctx.restore();
+    $('carpet-marker').style.left=(zt*100)+'%';
+    const px=Math.round(zt*(W-1));const pts=[];let mx=0,mn=Infinity,sum=0;
+    for(let py=0;py<H;py++){const v=res.I[py*W+px]/res.max;if(v>mx)mx=v;if(v<mn)mn=v;sum+=v;
+      pts.push((pml+(PW-pml-pmr)*py/(H-1)).toFixed(1)+','+(pmt+(PH-pmt-pmb)*(1-v)).toFixed(1));}
+    line.setAttribute('points',pts.join(' '));
+    const mean=sum/H;
+    $('zval').textContent=zt.toFixed(3)+' zᵀ';
+    $('zphys').textContent=(zt*zT*1000).toFixed(1)+' mm  (zᵀ = '+(zT*1000).toFixed(0)+' mm at p1 = 7.97 µm, λ = 4.1 Å)';
+    $('zvis').textContent=(mean>0?((mx-mn)/(mx+mn)*100):0).toFixed(0)+' %';
+    // dominant period: strongest harmonic of 1/p along the column
+    let best=0,bestK=0;for(let k=1;k<=4;k++){let cr=0,ci=0;for(let py=0;py<H;py++){const ph=2*Math.PI*k*PER*(py+0.5)/H;const v=res.I[py*W+px]/res.max;cr+=v*Math.cos(ph);ci+=v*Math.sin(ph);}const amp=2*Math.sqrt(cr*cr+ci*ci)/H;if(amp>best){best=amp;bestK=k;}}
+    $('zper').textContent=(best/Math.max(mean,1e-9))>0.05?(bestK===1?'p':'p / '+bestK):'flat';
+  }
+  document.querySelectorAll('input[name=gtype]').forEach(r=>r.addEventListener('change',draw));
+  $('zslider').addEventListener('input',draw);
+  draw();
+})();
+
+/* ---------- phase stepping bench ---------- */
+(function(){
+  const cv=$('step-cv');if(!cv)return;const ctx=cv.getContext('2d');const W=600,H=172,p=48;
+  const bands=[[20,56],[76,112],[132,168]];
+  function transmitted(xg){let s=0;const n=480;for(let i=0;i<n;i++){const x=i/n;const I=0.5*(1+Math.cos(2*Math.PI*x));const open=(((x-xg)%1)+1)%1<0.5;if(open)s+=I;}return s/n/0.5;}
+  function drawCanvas(xg){
+    const surface=css('--surface'),beam=css('--beam'),fg=css('--fg'),muted=css('--muted');
+    ctx.fillStyle=surface;ctx.fillRect(0,0,W,H);
+    for(let x=0;x<W;x++){const u=x/p;const I=0.5*(1+Math.cos(2*Math.PI*u));const open=(((u-xg)%1)+1)%1<0.5;
+      ctx.fillStyle=mix(surface,beam,I);ctx.fillRect(x,bands[0][0],1,bands[0][1]-bands[0][0]);
+      ctx.fillStyle=open?surface:fg;ctx.fillRect(x,bands[1][0],1,bands[1][1]-bands[1][0]);
+      ctx.fillStyle=open?mix(surface,beam,I):fg;ctx.fillRect(x,bands[2][0],1,bands[2][1]-bands[2][0]);}
+    ctx.fillStyle=muted;ctx.font='12px "Public Sans", sans-serif';ctx.textAlign='left';
+    ctx.fillText('self-image at G2 (intensity, period p2)',0,14);
+    ctx.fillText('G2 mask: dark = gadolinium bars, shifted by xₘ',0,70);
+    ctx.fillText('what passes G2 → one pixel averages all of this',0,126);
+    ctx.strokeStyle=muted;ctx.lineWidth=1;ctx.strokeRect(0.5,bands[1][0]+0.5,W-1,bands[1][1]-bands[1][0]-1);
+  }
+  const svg=$('step-chart');const CW=360,CH=172,ml=40,mr=10,mt=14,mb=34;const pw=CW-ml-mr,ph=CH-mt-mb;
+  const X=x=>ml+x*pw,Y=v=>mt+ph-v*ph;
+  const g=mk('g',{},svg);
+  for(let v=0;v<=1;v+=0.25){mk('line',{x1:ml,x2:ml+pw,y1:Y(v),y2:Y(v),class:'grid'},g);txt(g,ml-6,Y(v)+4,(v*100).toFixed(0)+'%',{class:'tick','text-anchor':'end'});}
+  for(let x=0;x<=1;x+=0.25){txt(g,X(x),CH-mb+16,x.toFixed(2),{class:'tick','text-anchor':'middle'});}
+  txt(g,ml+pw/2,CH-4,'G2 position xₘ / p2',{class:'lbl','text-anchor':'middle'});
+  let d='';for(let i=0;i<=100;i++){const x=i/100;d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(transmitted(x)).toFixed(1);}
+  mk('path',{d:d,class:'s-ref'},g);
+  const steps=mk('g',{class:'p-step'},g);for(let k=0;k<8;k++)mk('circle',{cx:X(k/8),cy:Y(transmitted(k/8)),r:3.5},steps);
+  const dot=mk('circle',{r:5,class:'',style:'fill:var(--sample);stroke:var(--surface);stroke-width:2'},g);
+  function update(){const xg=+$('xg').value;drawCanvas(xg);const T=transmitted(xg);dot.setAttribute('cx',X(xg));dot.setAttribute('cy',Y(T));$('xgval').textContent=xg.toFixed(2);$('step-out').textContent=(T*100).toFixed(0)+' %';}
+  $('xg').addEventListener('input',update);
+  let timer=null;
+  $('stepbtn').addEventListener('click',function(){if(timer)clearInterval(timer);let k=0;
+    if(reduceMotion){$('xg').value=0;update();return;}
+    timer=setInterval(function(){$('xg').value=(k/8).toFixed(3);update();k++;if(k>8){clearInterval(timer);timer=null;}},320);});
+  themeWatchers.push(update);update();
+})();
+
+/* ---------- Lau condition panels ---------- */
+(function(){
+  function panel(id,shift){const svg=$(id);if(!svg)return;const W=340,H=210;svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    const n=4,rowH=24,top=14;const x0=8,x1=W-44;
+    for(let s=0;s<n;s++){const y0=top+s*(rowH+6),y1=y0+rowH;const pts=[];
+      for(let i=0;i<=200;i++){const x=i/200*4;const v=0.5*(1+Math.cos(2*Math.PI*(x-s*shift)));pts.push((x0+(x1-x0)*i/200).toFixed(1)+','+(y1-v*rowH).toFixed(1));}
+      mk('line',{x1:x0,x2:x1,y1:y1,y2:y1,class:'grid'},svg);
+      mk('polyline',{points:pts.join(' '),class:'s-ref',opacity:0.5+0.16*s},svg);
+      txt(svg,W-6,y0+rowH/2+4,'slit '+(s+1),{class:'tick','text-anchor':'end'});}
+    const ys0=top+n*(rowH+6)+12,ys1=ys0+rowH*1.6;const pts=[];
+    for(let i=0;i<=200;i++){const x=i/200*4;let v=0;for(let s=0;s<n;s++)v+=0.5*(1+Math.cos(2*Math.PI*(x-s*shift)));v/=n;pts.push((x0+(x1-x0)*i/200).toFixed(1)+','+(ys1-v*rowH*1.6).toFixed(1));}
+    mk('line',{x1:x0,x2:x1,y1:ys1,y2:ys1,class:'axis'},svg);
+    mk('polyline',{points:pts.join(' '),class:'s-sum'},svg);
+    txt(svg,W-6,ys0+rowH*0.8+4,'sum',{class:'tick','text-anchor':'end'});
+    txt(svg,x0,H-4,'lateral position at G2 (4 periods of p2)',{class:'lbl'});
+  }
+  panel('lau-ok',1.0);panel('lau-bad',0.5);
+})();
+
+/* ---------- Talbot-Lau design calculator ---------- */
+(function(){
+  if(!$('c-lam'))return;
+  function fmt(v,unit,dig){return v.toFixed(dig)+' '+unit;}
+  function update(){
+    const lam=+$('c-lam').value*1e-10,p1=+$('c-p1').value*1e-6,phase=$('c-phase').value,n=+$('c-n').value,L=+$('c-L').value;
+    if(!(lam>0&&p1>0&&L>0))return;
+    const zT=2*p1*p1/lam;const eta=phase==='pi'?2:1;
+    const d0=phase==='pi'?n*p1*p1/(8*lam):n*p1*p1/(2*lam);
+    const d=d0*(L+d0)/L; // first-order cone correction
+    const p2=(p1/eta)*(L+d)/L;const p0=p2*L/d;
+    const phi=phase==='pi'?Math.PI:Math.PI/2;const h=phi/((+$('c-lam').value)*2.07e-6)*1e-4; // µm
+    const xi=lam*d/p2;
+    $('c-zt').textContent=fmt(zT*1e3,'mm',1);$('c-d').textContent=fmt(d*1e3,'mm',2);$('c-p2').textContent=fmt(p2*1e6,'µm',3);
+    $('c-p0').textContent=p0>=1e-3?fmt(p0*1e3,'mm',3):fmt(p0*1e6,'µm',1);$('c-h').textContent=fmt(h,'µm',1);$('c-xi').textContent=fmt(xi*1e6,'µm',2);
+  }
+  ['c-lam','c-p1','c-phase','c-n','c-L'].forEach(id=>{$(id).addEventListener('input',update);$(id).addEventListener('change',update);});
+  update();
+})();
+
+/* ---------- signal extraction bench ---------- */
+(function(){
+  const svg=$('sig-chart');if(!svg)return;const W=640,H=300,ml=46,mr=16,mt=16,mb=40;const pw=W-ml-mr,ph=H-mt-mb;
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  const X=x=>ml+x*pw,Y=v=>mt+ph-(v/1.5)*ph;const g=mk('g',{},svg);
+  for(let v=0;v<=1.5;v+=0.5){mk('line',{x1:ml,x2:ml+pw,y1:Y(v),y2:Y(v),class:v===0?'axis':'grid'},g);txt(g,ml-8,Y(v)+4,v.toFixed(1),{class:'tick','text-anchor':'end'});}
+  for(let x=0;x<=1;x+=0.25){txt(g,X(x),H-mb+18,x.toFixed(2),{class:'tick','text-anchor':'middle'});}
+  txt(g,ml+pw/2,H-6,'grating position xₘ / p2',{class:'lbl','text-anchor':'middle'});
+  txt(g,14,mt+ph/2,'intensity / mean reference',{class:'lbl','text-anchor':'middle',transform:'rotate(-90 14 '+(mt+ph/2)+')'});
+  const refPath=mk('path',{class:'s-ref'},g),smpPath=mk('path',{class:'s-smp'},g);
+  const refPts=mk('g',{class:'p-ref'},g),smpPts=mk('g',{class:'p-smp'},g);
+  const Vr=0.3;let fr=x=>1,fs=x=>1;
+  function curve(fn){let d='';for(let i=0;i<=120;i++){const x=i/120;d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(fn(x)).toFixed(1);}return d;}
+  function update(){
+    const T=+$('sig-T').value,dphi=+$('sig-phi').value,dfi=+$('sig-dfi').value;
+    fr=x=>1+Vr*Math.cos(2*Math.PI*x);fs=x=>T*(1+Vr*dfi*Math.cos(2*Math.PI*x+dphi));
+    refPath.setAttribute('d',curve(fr));smpPath.setAttribute('d',curve(fs));
+    refPts.innerHTML='';smpPts.innerHTML='';
+    for(let k=0;k<8;k++){const x=k/8;mk('circle',{cx:X(x),cy:Y(fr(x)),r:4},refPts);mk('circle',{cx:X(x),cy:Y(fs(x)),r:4},smpPts);}
+    $('sig-T-v').textContent=T.toFixed(2);$('sig-phi-v').textContent=dphi.toFixed(2)+' rad';$('sig-dfi-v').textContent=dfi.toFixed(2);
+    $('sig-out-T').textContent='T = '+T.toFixed(2);$('sig-out-phi').textContent='Δφ = '+dphi.toFixed(2)+' rad';$('sig-out-dfi').textContent='DFI = '+dfi.toFixed(2);
+    const alpha=4e-6*dphi/(2*Math.PI*19.4e-3);$('sig-out-alpha').textContent=(alpha*1e6).toFixed(1)+' µrad';
+  }
+  ['sig-T','sig-phi','sig-dfi'].forEach(id=>$(id).addEventListener('input',update));update();
+  // hover crosshair
+  const cur=mk('g',{class:'cursor',visibility:'hidden'},svg);const cl=mk('line',{y1:mt,y2:mt+ph},cur);const cb=mk('rect',{width:150,height:40,rx:3},cur);const t1=txt(cur,0,0,'',{}),t2=txt(cur,0,0,'',{});
+  function pos(ev){const r=svg.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*W;return Math.min(1,Math.max(0,(x-ml)/pw));}
+  svg.addEventListener('mousemove',ev=>{const x=pos(ev);const px=X(x);cur.setAttribute('visibility','visible');cl.setAttribute('x1',px);cl.setAttribute('x2',px);
+    const bx=px>ml+pw-160?px-160:px+10;cb.setAttribute('x',bx);cb.setAttribute('y',mt+4);
+    t1.setAttribute('x',bx+8);t1.setAttribute('y',mt+20);t1.textContent='xₘ/p2 = '+x.toFixed(2)+'  ref '+fr(x).toFixed(2);
+    t2.setAttribute('x',bx+8);t2.setAttribute('y',mt+36);t2.textContent='sample '+fs(x).toFixed(2);});
+  svg.addEventListener('mouseleave',()=>cur.setAttribute('visibility','hidden'));
+})();
+
+/* ---------- far-field bench ---------- */
+(function(){
+  if(!$('ff-p'))return;const L1=1;
+  const det=$('ff-det'),dctx=det.getContext('2d');const beat=$('ff-beat'),bctx=beat.getContext('2d');
+  function drawBeat(){const surface=css('--surface'),beam=css('--beam'),fg=css('--fg');const W=600;
+    bctx.fillStyle=surface;bctx.fillRect(0,0,W,80);
+    const a=12,b=12*1.1;
+    for(let x=0;x<W;x++){const t1=0.5*(1+Math.cos(2*Math.PI*x/a)),t2=0.5*(1+Math.cos(2*Math.PI*x/b));
+      bctx.fillStyle=mix(surface,fg,t1*0.8);bctx.fillRect(x,0,1,18);
+      bctx.fillStyle=mix(surface,fg,t2*0.8);bctx.fillRect(x,24,1,18);
+      bctx.fillStyle=mix(surface,beam,t1*t2);bctx.fillRect(x,48,1,32);}
+    bctx.fillStyle=css('--muted');bctx.font='11px "JetBrains Mono", monospace';bctx.textAlign='right';
+    bctx.fillText('G1 projected',W-4,13);bctx.fillText('G2 projected',W-4,37);bctx.fillText('product: beat',W-4,76);}
+  function update(){
+    const p=+$('ff-p').value,D=+$('ff-D').value,L=+$('ff-L').value,lam=+$('ff-lam').value;
+    const P=p*1e-6*L/(D*1e-3);const L2=L-L1-D*1e-3;const xi=lam*1e-10*L2*(D*1e-3)/(p*1e-6*L);
+    $('ff-p-v').textContent=p.toFixed(1)+' µm';$('ff-D-v').textContent=D.toFixed(1)+' mm';$('ff-L-v').textContent=L.toFixed(1)+' m';$('ff-lam-v').textContent=lam.toFixed(1)+' Å';
+    $('ff-P').textContent=(P*1e3).toFixed(2)+' mm';$('ff-n').textContent=(20e-3/P).toFixed(1);$('ff-xi').textContent=(xi*1e6).toFixed(2)+' µm';$('ff-L2').textContent=L2.toFixed(2)+' m';
+    const surface=css('--surface'),beam=css('--beam');const W=600;dctx.fillStyle=surface;dctx.fillRect(0,0,W,80);
+    const mmPerPx=20/W;for(let x=0;x<W;x++){const xm=(x+0.5)*mmPerPx*1e-3;const I=0.5*(1+0.9*Math.cos(2*Math.PI*xm/P));dctx.fillStyle=mix(surface,beam,I);dctx.fillRect(x,0,1,64);}
+    dctx.fillStyle=css('--muted');dctx.font='11px "JetBrains Mono", monospace';dctx.textAlign='left';dctx.fillText('0 mm',2,76);dctx.textAlign='right';dctx.fillText('20 mm',W-2,76);
+    dctx.textAlign='center';dctx.fillText('P = '+(P*1e3).toFixed(2)+' mm',W/2,76);
+  }
+  ['ff-p','ff-D','ff-L','ff-lam'].forEach(id=>$(id).addEventListener('input',update));
+  themeWatchers.push(function(){update();drawBeat();});update();drawBeat();
+})();
+
+/* ---------- dark-field vs autocorrelation length ---------- */
+(function(){
+  const svg=$('dfi-chart');if(!svg)return;const W=720,H=340,ml=50,mr=16,mt=16,mb=96;const pw=W-ml-mr,ph=H-mt-mb;const XM=10;
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  const X=xi=>ml+xi/XM*pw,Y=v=>mt+ph-v*ph;const g=mk('g',{},svg);
+  for(let v=0;v<=1;v+=0.25){mk('line',{x1:ml,x2:ml+pw,y1:Y(v),y2:Y(v),class:v===0?'axis':'grid'},g);txt(g,ml-8,Y(v)+4,v.toFixed(2),{class:'tick','text-anchor':'end'});}
+  for(let x=0;x<=XM;x+=2){txt(g,X(x),H-mb+18,x+'',{class:'tick','text-anchor':'middle'});}
+  txt(g,ml+pw/2,H-mb+34,'autocorrelation length ξ (µm)',{class:'lbl','text-anchor':'middle'});
+  txt(g,14,mt+ph/2,'dark-field signal DFI',{class:'lbl','text-anchor':'middle',transform:'rotate(-90 14 '+(mt+ph/2)+')'});
+  // instrument reach brackets
+  function bracket(y,a,b,label){a=Math.min(a,XM);b=Math.min(b,XM);mk('line',{x1:X(a),x2:X(b),y1:y,y2:y,class:'axis',style:'stroke:var(--muted);stroke-width:2'},g);mk('line',{x1:X(a),x2:X(a),y1:y-5,y2:y+5,style:'stroke:var(--muted);stroke-width:2'},g);mk('line',{x1:X(b),x2:X(b),y1:y-5,y2:y+5,style:'stroke:var(--muted);stroke-width:2'},g);txt(g,X(b)+8,y+4,label,{class:'lbl'});}
+  const tl=[2e-10*19.4e-3/4e-6*1e6,8e-10*19.4e-3/4e-6*1e6];
+  const ff=[4.4e-10*3*1e-3/(2.4e-6*4)*1e6,4.4e-10*3*50e-3/(2.4e-6*4)*1e6];
+  bracket(H-mb+52,tl[0],tl[1],'Talbot-Lau, λ = 2 → 8 Å by time of flight ('+tl[0].toFixed(1)+' → '+tl[1].toFixed(1)+' µm)');
+  bracket(H-mb+74,ff[0],ff[1],'far-field, D = 1 → 50 mm ('+ff[0].toFixed(2)+' → '+ff[1].toFixed(1)+' µm)');
+  const plateau=mk('line',{class:'s-sum',style:'stroke-dasharray:5 4;opacity:.7'},g);const plab=txt(g,0,0,'',{class:'lbl'});
+  const knee=mk('line',{class:'grid',style:'stroke:var(--sample);stroke-dasharray:3 3'},g);const klab=txt(g,0,0,'',{class:'lbl',style:'fill:var(--sample)'});
+  const path=mk('path',{class:'s-sct'},g);
+  function G(xi,R){if(xi<=0)return 1;if(xi>=2*R)return 0;const r=xi/(2*R);return Math.sqrt(1-r*r)*(1+xi*xi/(8*R*R))+(xi*xi/(2*R*R))*(1-xi*xi/(16*R*R))*Math.log(xi/(2*R+Math.sqrt(4*R*R-xi*xi)));}
+  let Ds=3,St=1.5;function dfi(xi){return Math.exp(-St*(1-G(xi,Ds/2)));}
+  function update(){Ds=+$('df-d').value;St=+$('df-st').value;$('df-d-v').textContent=Ds.toFixed(1)+' µm';$('df-st-v').textContent=St.toFixed(2);
+    let d='';for(let i=0;i<=300;i++){const xi=i/300*XM;d+=(i?'L':'M')+X(xi).toFixed(1)+' '+Y(dfi(xi)).toFixed(1);}path.setAttribute('d',d);
+    const pl=Math.exp(-St);plateau.setAttribute('x1',ml);plateau.setAttribute('x2',ml+pw);plateau.setAttribute('y1',Y(pl));plateau.setAttribute('y2',Y(pl));
+    plab.setAttribute('x',ml+pw-4);plab.setAttribute('y',Y(pl)-6);plab.setAttribute('text-anchor','end');plab.textContent='exp(−Σt) = '+pl.toFixed(2);
+    knee.setAttribute('x1',X(Ds));knee.setAttribute('x2',X(Ds));knee.setAttribute('y1',mt);knee.setAttribute('y2',mt+ph);
+    klab.setAttribute('x',X(Ds)+5);klab.setAttribute('y',mt+12);klab.textContent='ξ = Ds';}
+  ['df-d','df-st'].forEach(id=>$(id).addEventListener('input',update));update();
+  const cur=mk('g',{class:'cursor',visibility:'hidden'},svg);const cl=mk('line',{y1:mt,y2:mt+ph},cur);const cb=mk('rect',{width:140,height:24,rx:3},cur);const t1=txt(cur,0,0,'',{});
+  svg.addEventListener('mousemove',ev=>{const r=svg.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*W;const xi=Math.min(XM,Math.max(0,(x-ml)/pw*XM));const px=X(xi);
+    cur.setAttribute('visibility','visible');cl.setAttribute('x1',px);cl.setAttribute('x2',px);const bx=px>ml+pw-150?px-150:px+10;cb.setAttribute('x',bx);cb.setAttribute('y',mt+ph-40);
+    t1.setAttribute('x',bx+8);t1.setAttribute('y',mt+ph-24);t1.textContent='ξ = '+xi.toFixed(2)+' µm   DFI = '+dfi(xi).toFixed(2);});
+  svg.addEventListener('mouseleave',()=>cur.setAttribute('visibility','hidden'));
+})();
+})();
+</script>
+</body>
+</html>

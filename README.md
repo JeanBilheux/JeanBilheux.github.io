@@ -11,6 +11,8 @@ css/home.css all styling
 cv/          the CV the header's "CV" button downloads
 fonts/       self-hosted Source Sans 3 (variable, woff2)
 images/      header portrait + talk thumbnails
+grating-interferometry/
+             self-contained explainer page (one index.html, inline CSS/JS, Google Fonts)
 .nojekyll    serve every file verbatim, including dirs starting with "_"
 ```
 
@@ -36,3 +38,9 @@ tab and leaves this page where the visitor left it — keep that on new links to
 For the hero image, grab the deck's first preview slide
 (`_preview/s-01.jpg` in the presentations repo), drop it in `images/`, and point
 `.hero-visual` at it.
+
+## Adding an illustrated note
+
+Self-contained pages (HTML with inline CSS and JS) live in their own folder, e.g.
+`grating-interferometry/index.html`, and are listed as a `talk-card` in the
+`#notes` section of `index.html`. Same-site links stay in the same tab.
